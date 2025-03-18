@@ -13,10 +13,13 @@ This repository contains code and documentation for analyzing population genetic
 
 ## Repository Contents
 
-- `plot.Rmd`: R markdown for generating visualizations of population genetic statistics and genomic features
-- `data.Rmd`: R markdown for data processing, SNP calling, and calculation of population genetic statistics
-- `/scripts`: Shell scripts for ANGSD analyses, recombination estimation, and feature detection
-- `/data_files` and `/plot_files/input`: Input data files 
+[Data processing, SNP calling, and calculation of population genetic statistics](https://github.com/makopyan/silverside-4pop/blob/main/data.md)  
+
+[Generating visualizations of population genetic statistics and genomic features](https://github.com/makopyan/silverside-4pop/blob/main/plot.md)  
+
+[Shell scripts for ANGSD analyses, recombination estimation, and feature detection](https://github.com/makopyan/silverside-4pop/tree/main/scripts)
+
+`/data_files` and `/plot_files/input`: Input data files 
 
 
 ## Analysis Overview
