@@ -1,8 +1,13 @@
 
-#Genetic differentiation is constrained to chromosomal inversions and putative centromeres in locally adapted populations with higher gene flow
+# Genetic differentiation is constrained to chromosomal inversions and putative centromeres in locally adapted populations with higher gene flow
 
 This repository contains code and documentation for analyzing population genetic structure and genomic features in four Atlantic silverside (*Menidia menidia*) populations along the North American east coast.
 
+
+## Data 
+
+[Raw reads](http://ncbi.nlm.nih.gov/bioproject/PRJNA376564/)
+[Reference genome](https://www.ncbi.nlm.nih.gov/datasets/genome/GCA_965154125.1/)
 
 ## Repository Contents
 
