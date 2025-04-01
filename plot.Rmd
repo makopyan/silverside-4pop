@@ -274,10 +274,9 @@ ggarrange(
 
 
 
-## Pi by region and inversion frequencies (Fig 5)
+## Pi by region (Fig 5)
 
 ```{r pibyreg, message=F, warning=F, fig.width=5, fig.height=7}
-
 plotpi <- alldatareg %>% dplyr::select(chromosome,midpoint,regions,JIGA_pi2,PANY_pi2,MBNS_pi2,MAQU_pi2) %>%
   pivot_longer(ends_with("pi2"), names_to="pop", values_to="pi") %>% 
   mutate(pop=recode(pop, JIGA_pi2 = "JIGA", PANY_pi2 = "PANY", MBNS_pi2 = "MBNS", MAQU_pi2 = "MAQU")) %>% 
@@ -335,12 +334,14 @@ f5b<-plotpi %>%
         strip.text = element_text(size=13),
         axis.text = element_text(color="black", size=10)) +
   facet_wrap(factor(chromosome, labels =c('Inversion 8','Inversion 11','Inversion 18', "Inversion 24"))
-~., nrow=1) 
+~., nrow=1)
+```
 
 
 
+## Inv PCA
 
-
+```{r invpca, message=F, warning=F, fig.width=6.5, fig.height=8}
 pca <- read_tsv("plot_files/input/combined_pca_results.txt") %>%
   mutate(region=paste0("chr",chr,"_",start)) %>%
   separate(population,into=c("pop","id"),sep="_") %>% rowid_to_column()
@@ -360,6 +361,34 @@ mypca <- pca %>% mutate(inv=case_when(region=="chr07_648623" & PC1 < -0.3 ~ "SS"
                                       PC1 > 0.25 ~ "NN",
                                       TRUE ~ "NS"))
 
+
+
+plot_pca <- mypca %>% group_by(pop,chr,start,end,region,inv) %>%
+  mutate(size=(end-start)/1e6) %>%
+  mutate(size=round(size,digits=2)) %>% 
+  mutate(pop=recode(pop, JekyllIs = "GA", Patchogue = "NY", MinasBasin = "NS", MagdalenIs = "QU")) %>%
+  mutate(Inversion=paste0("chr",chr,"_",size)) %>% 
+  mutate(Inversion = fct_reorder(Inversion, as.integer(chr,start))) %>% 
+  rename("genotype"="inv","population"="pop")
+
+
+ggplot(plot_pca)+
+  geom_point(aes(x=PC1,y=PC2,color=population,shape=genotype))+
+  facet_wrap(~Inversion,nrow=5)+
+  scale_color_manual(values = c("#ed6677", "#67cced","#258942","#0073b2"))+
+  theme_classic()+
+  theme(
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.text = element_text(size=12),
+        panel.border = element_rect(fill=NA,color="black"),
+        axis.text = element_text(color="black"))
+```
+
+
+## Inversion Frequencies (Fig 5)
+
+```{r invfreq, message=F, warning=F, fig.width=5, fig.height=7}
 sizes_inv<-mypca %>% distinct(region,.keep_all=T) %>% mutate(size=end-start)
 
 

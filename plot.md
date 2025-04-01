@@ -7,8 +7,9 @@ Plotting Data
 -   [Plot FST, recombination rate, centromeres, inversions, telomeres
     (Fig 3)](#plot-fst-recombination-rate-centromeres-inversions-telomeres-fig-3)
 -   [FST and DXY by region (Fig 4)](#fst-and-dxy-by-region-fig-4)
--   [Pi by region and inversion frequencies
-    (Fig 5)](#pi-by-region-and-inversion-frequencies-fig-5)
+-   [Pi by region (Fig 5)](#pi-by-region-fig-5)
+-   [Inv PCA](#inv-pca)
+-   [Inversion Frequencies (Fig 5)](#inversion-frequencies-fig-5)
 -   [FST and recombination rate correlation (Fig
     S2)](#fst-and-recombination-rate-correlation-fig-s2)
 -   [Centromeres vs telomeres mean FST, centromeres vs inversions PCA
@@ -337,7 +338,7 @@ ggarrange(
 
 ![](plot_files/figure-gfm/diffbyreg-1.png)<!-- -->
 
-## Pi by region and inversion frequencies (Fig 5)
+## Pi by region (Fig 5)
 
 ``` r
 plotpi <- alldatareg %>% dplyr::select(chromosome,midpoint,regions,JIGA_pi2,PANY_pi2,MBNS_pi2,MAQU_pi2) %>%
@@ -397,12 +398,12 @@ f5b<-plotpi %>%
         strip.text = element_text(size=13),
         axis.text = element_text(color="black", size=10)) +
   facet_wrap(factor(chromosome, labels =c('Inversion 8','Inversion 11','Inversion 18', "Inversion 24"))
-~., nrow=1) 
+~., nrow=1)
+```
 
+## Inv PCA
 
-
-
-
+``` r
 pca <- read_tsv("plot_files/input/combined_pca_results.txt") %>%
   mutate(region=paste0("chr",chr,"_",start)) %>%
   separate(population,into=c("pop","id"),sep="_") %>% rowid_to_column()
@@ -422,6 +423,35 @@ mypca <- pca %>% mutate(inv=case_when(region=="chr07_648623" & PC1 < -0.3 ~ "SS"
                                       PC1 > 0.25 ~ "NN",
                                       TRUE ~ "NS"))
 
+
+
+plot_pca <- mypca %>% group_by(pop,chr,start,end,region,inv) %>%
+  mutate(size=(end-start)/1e6) %>%
+  mutate(size=round(size,digits=2)) %>% 
+  mutate(pop=recode(pop, JekyllIs = "GA", Patchogue = "NY", MinasBasin = "NS", MagdalenIs = "QU")) %>%
+  mutate(Inversion=paste0("chr",chr,"_",size)) %>% 
+  mutate(Inversion = fct_reorder(Inversion, as.integer(chr,start))) %>% 
+  rename("genotype"="inv","population"="pop")
+
+
+ggplot(plot_pca)+
+  geom_point(aes(x=PC1,y=PC2,color=population,shape=genotype))+
+  facet_wrap(~Inversion,nrow=5)+
+  scale_color_manual(values = c("#ed6677", "#67cced","#258942","#0073b2"))+
+  theme_classic()+
+  theme(
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.text = element_text(size=12),
+        panel.border = element_rect(fill=NA,color="black"),
+        axis.text = element_text(color="black"))
+```
+
+![](plot_files/figure-gfm/invpca-1.png)<!-- -->
+
+## Inversion Frequencies (Fig 5)
+
+``` r
 sizes_inv<-mypca %>% distinct(region,.keep_all=T) %>% mutate(size=end-start)
 
 
@@ -486,7 +516,7 @@ f5c<-ggplot(inv_freq_pop_zero,aes(x=inv,y=Inversion))+
 ggarrange(f5a,f5b,f5c,labels=c("A","B","C"),nrow=3,heights=c(0.45,0.4,1))
 ```
 
-![](plot_files/figure-gfm/pibyreg-1.png)<!-- -->
+![](plot_files/figure-gfm/invfreq-1.png)<!-- -->
 
 ## FST and recombination rate correlation (Fig S2)
 
