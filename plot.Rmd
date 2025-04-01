@@ -338,10 +338,10 @@ f5b<-plotpi %>%
 ```
 
 
+## Inversion Frequencies (Fig 5)
 
-## Inv PCA
+```{r invfreq, message=F, warning=F, fig.width=5, fig.height=7}
 
-```{r invpca, message=F, warning=F, fig.width=6.5, fig.height=8}
 pca <- read_tsv("plot_files/input/combined_pca_results.txt") %>%
   mutate(region=paste0("chr",chr,"_",start)) %>%
   separate(population,into=c("pop","id"),sep="_") %>% rowid_to_column()
@@ -361,34 +361,6 @@ mypca <- pca %>% mutate(inv=case_when(region=="chr07_648623" & PC1 < -0.3 ~ "SS"
                                       PC1 > 0.25 ~ "NN",
                                       TRUE ~ "NS"))
 
-
-
-plot_pca <- mypca %>% group_by(pop,chr,start,end,region,inv) %>%
-  mutate(size=(end-start)/1e6) %>%
-  mutate(size=round(size,digits=2)) %>% 
-  mutate(pop=recode(pop, JekyllIs = "GA", Patchogue = "NY", MinasBasin = "NS", MagdalenIs = "QU")) %>%
-  mutate(Inversion=paste0("chr",chr,"_",size)) %>% 
-  mutate(Inversion = fct_reorder(Inversion, as.integer(chr,start))) %>% 
-  rename("genotype"="inv","population"="pop")
-
-
-ggplot(plot_pca)+
-  geom_point(aes(x=PC1,y=PC2,color=population,shape=genotype))+
-  facet_wrap(~Inversion,nrow=5)+
-  scale_color_manual(values = c("#ed6677", "#67cced","#258942","#0073b2"))+
-  theme_classic()+
-  theme(
-        strip.background = element_blank(),
-        axis.line = element_blank(),
-        strip.text = element_text(size=12),
-        panel.border = element_rect(fill=NA,color="black"),
-        axis.text = element_text(color="black"))
-```
-
-
-## Inversion Frequencies (Fig 5)
-
-```{r invfreq, message=F, warning=F, fig.width=5, fig.height=7}
 sizes_inv<-mypca %>% distinct(region,.keep_all=T) %>% mutate(size=end-start)
 
 
@@ -590,7 +562,34 @@ ggarrange(avgfstp,pcap,labels=c("A","B"),nrow=2,heights = c(1,1))
 
 
 
-## Plot sequence divergence, dxy (Fig S4)
+## Inv PCA (Fig S4)
+
+```{r invpca, message=F, warning=F, fig.width=6.5, fig.height=8}
+plot_pca <- mypca %>% group_by(pop,chr,start,end,region,inv) %>%
+  mutate(size=(end-start)/1e6) %>%
+  mutate(size=round(size,digits=2)) %>% 
+  mutate(pop=recode(pop, JekyllIs = "GA", Patchogue = "NY", MinasBasin = "NS", MagdalenIs = "QU")) %>%
+  mutate(Inversion=paste0("chr",chr,"_",size)) %>% 
+  mutate(Inversion = fct_reorder(Inversion, as.integer(chr,start))) %>% 
+  rename("genotype"="inv","population"="pop")
+
+
+ggplot(plot_pca)+
+  geom_point(aes(x=PC1,y=PC2,color=population,shape=genotype))+
+  facet_wrap(~Inversion,nrow=5)+
+  scale_color_manual(values = c("#ed6677", "#67cced","#258942","#0073b2"))+
+  theme_classic()+
+  theme(
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.text = element_text(size=12),
+        panel.border = element_rect(fill=NA,color="black"),
+        axis.text = element_text(color="black"))
+```
+
+
+
+## Plot sequence divergence, dxy (Fig S5)
 
 ```{r plotDXY, message=F, warning=F, fig.width=8, fig.height=5}
 
@@ -626,7 +625,7 @@ ggplot(plotdxy) +
 
 ```
 
-## Plot nucleotide diversity, pi (Fig S5)
+## Plot nucleotide diversity, pi (Fig S6)
 
 
 ```{r plotPI, message=F, warning=F, fig.width=8, fig.height=6}
@@ -663,7 +662,7 @@ ggplot(plotpi) +
 ```
 
 
-## Diversity and differentiation correlation plots (Fig S6)
+## Diversity and differentiation correlation plots (Fig S7)
 ```{r plotpifst, message=F, warning=F, fig.width=6.5, fig.height=8}
 
 gap<-ggplot(alldatareg,aes(x=JIGA_pi2,y=fstGANY,color=regions)) + 
@@ -915,7 +914,7 @@ ggarrange(gap, nyp, nyp2, nsp, nsp2, qup,
 
 
 
-## Plot Tajima's D (Fig S7)
+## Plot Tajima's D (Fig S8)
 
 ```{r plotTAJD, message=F, warning=F, fig.width=8, fig.height=6}
 alltajD <- alldatareg %>% dplyr::select(chromosome,midpoint,regions,tajJIGA,tajPANY,tajMBNS,tajMAQU) %>% 
@@ -955,7 +954,7 @@ ggplot(alltajD) +
 
 
 
-## Recomb rate vs. genome features (Fig S8)
+## Recomb rate vs. genome features (Fig S9)
 
 ```{r plotcorr, message=F, warning=F, fig.width=6.5, fig.height=4}
 reps<-read_tsv("window50/repwindows.txt") %>% full_join(alldatareg,by=c("chr"="chromosome","col1","col2"))
@@ -1046,7 +1045,7 @@ print(results)
 
 
 
-## SNP depth across genome (Fig S9)
+## SNP depth across genome (Fig S10)
 ```{r depthgenome, message=F, warning=F, fig.width=8, fig.height=6}
 
 ga.dep <- read_tsv("plot_files/input/JIGAdepavg.tsv")

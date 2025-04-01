@@ -8,23 +8,24 @@ Plotting Data
     (Fig 3)](#plot-fst-recombination-rate-centromeres-inversions-telomeres-fig-3)
 -   [FST and DXY by region (Fig 4)](#fst-and-dxy-by-region-fig-4)
 -   [Pi by region (Fig 5)](#pi-by-region-fig-5)
--   [Inv PCA](#inv-pca)
 -   [Inversion Frequencies (Fig 5)](#inversion-frequencies-fig-5)
 -   [FST and recombination rate correlation (Fig
     S2)](#fst-and-recombination-rate-correlation-fig-s2)
 -   [Centromeres vs telomeres mean FST, centromeres vs inversions PCA
     (Fig
     S3)](#centromeres-vs-telomeres-mean-fst-centromeres-vs-inversions-pca-fig-s3)
+-   [Inv PCA (Fig S4)](#inv-pca-fig-s4)
 -   [Plot sequence divergence, dxy (Fig
-    S4)](#plot-sequence-divergence-dxy-fig-s4)
+    S5)](#plot-sequence-divergence-dxy-fig-s5)
 -   [Plot nucleotide diversity, pi (Fig
-    S5)](#plot-nucleotide-diversity-pi-fig-s5)
+    S6)](#plot-nucleotide-diversity-pi-fig-s6)
 -   [Diversity and differentiation correlation plots (Fig
-    S6)](#diversity-and-differentiation-correlation-plots-fig-s6)
--   [Plot Tajima’s D (Fig S7)](#plot-tajimas-d-fig-s7)
+    S7)](#diversity-and-differentiation-correlation-plots-fig-s7)
+-   [Plot Tajima’s D (Fig S8)](#plot-tajimas-d-fig-s8)
 -   [Recomb rate vs. genome features (Fig
-    S8)](#recomb-rate-vs-genome-features-fig-s8)
--   [SNP depth across genome (Fig S9)](#snp-depth-across-genome-fig-s9)
+    S9)](#recomb-rate-vs-genome-features-fig-s9)
+-   [SNP depth across genome (Fig
+    S10)](#snp-depth-across-genome-fig-s10)
 
 ## Input data frame with pop gen and genome feature data
 
@@ -401,7 +402,7 @@ f5b<-plotpi %>%
 ~., nrow=1)
 ```
 
-## Inv PCA
+## Inversion Frequencies (Fig 5)
 
 ``` r
 pca <- read_tsv("plot_files/input/combined_pca_results.txt") %>%
@@ -423,35 +424,6 @@ mypca <- pca %>% mutate(inv=case_when(region=="chr07_648623" & PC1 < -0.3 ~ "SS"
                                       PC1 > 0.25 ~ "NN",
                                       TRUE ~ "NS"))
 
-
-
-plot_pca <- mypca %>% group_by(pop,chr,start,end,region,inv) %>%
-  mutate(size=(end-start)/1e6) %>%
-  mutate(size=round(size,digits=2)) %>% 
-  mutate(pop=recode(pop, JekyllIs = "GA", Patchogue = "NY", MinasBasin = "NS", MagdalenIs = "QU")) %>%
-  mutate(Inversion=paste0("chr",chr,"_",size)) %>% 
-  mutate(Inversion = fct_reorder(Inversion, as.integer(chr,start))) %>% 
-  rename("genotype"="inv","population"="pop")
-
-
-ggplot(plot_pca)+
-  geom_point(aes(x=PC1,y=PC2,color=population,shape=genotype))+
-  facet_wrap(~Inversion,nrow=5)+
-  scale_color_manual(values = c("#ed6677", "#67cced","#258942","#0073b2"))+
-  theme_classic()+
-  theme(
-        strip.background = element_blank(),
-        axis.line = element_blank(),
-        strip.text = element_text(size=12),
-        panel.border = element_rect(fill=NA,color="black"),
-        axis.text = element_text(color="black"))
-```
-
-![](plot_files/figure-gfm/invpca-1.png)<!-- -->
-
-## Inversion Frequencies (Fig 5)
-
-``` r
 sizes_inv<-mypca %>% distinct(region,.keep_all=T) %>% mutate(size=end-start)
 
 
@@ -661,7 +633,34 @@ ggarrange(avgfstp,pcap,labels=c("A","B"),nrow=2,heights = c(1,1))
 
 ![](plot_files/figure-gfm/figs3-1.png)<!-- -->
 
-## Plot sequence divergence, dxy (Fig S4)
+## Inv PCA (Fig S4)
+
+``` r
+plot_pca <- mypca %>% group_by(pop,chr,start,end,region,inv) %>%
+  mutate(size=(end-start)/1e6) %>%
+  mutate(size=round(size,digits=2)) %>% 
+  mutate(pop=recode(pop, JekyllIs = "GA", Patchogue = "NY", MinasBasin = "NS", MagdalenIs = "QU")) %>%
+  mutate(Inversion=paste0("chr",chr,"_",size)) %>% 
+  mutate(Inversion = fct_reorder(Inversion, as.integer(chr,start))) %>% 
+  rename("genotype"="inv","population"="pop")
+
+
+ggplot(plot_pca)+
+  geom_point(aes(x=PC1,y=PC2,color=population,shape=genotype))+
+  facet_wrap(~Inversion,nrow=5)+
+  scale_color_manual(values = c("#ed6677", "#67cced","#258942","#0073b2"))+
+  theme_classic()+
+  theme(
+        strip.background = element_blank(),
+        axis.line = element_blank(),
+        strip.text = element_text(size=12),
+        panel.border = element_rect(fill=NA,color="black"),
+        axis.text = element_text(color="black"))
+```
+
+![](plot_files/figure-gfm/invpca-1.png)<!-- -->
+
+## Plot sequence divergence, dxy (Fig S5)
 
 ``` r
 ggplot(plotdxy) +
@@ -696,7 +695,7 @@ ggplot(plotdxy) +
 
 ![](plot_files/figure-gfm/plotDXY-1.png)<!-- -->
 
-## Plot nucleotide diversity, pi (Fig S5)
+## Plot nucleotide diversity, pi (Fig S6)
 
 ``` r
 ggplot(plotpi) +
@@ -731,7 +730,7 @@ ggplot(plotpi) +
 
 ![](plot_files/figure-gfm/plotPI-1.png)<!-- -->
 
-## Diversity and differentiation correlation plots (Fig S6)
+## Diversity and differentiation correlation plots (Fig S7)
 
 ``` r
 gap<-ggplot(alldatareg,aes(x=JIGA_pi2,y=fstGANY,color=regions)) + 
@@ -983,7 +982,7 @@ ggarrange(gap, nyp, nyp2, nsp, nsp2, qup,
 
 ![](plot_files/figure-gfm/plotpifst-1.png)<!-- -->
 
-## Plot Tajima’s D (Fig S7)
+## Plot Tajima’s D (Fig S8)
 
 ``` r
 alltajD <- alldatareg %>% dplyr::select(chromosome,midpoint,regions,tajJIGA,tajPANY,tajMBNS,tajMAQU) %>% 
@@ -1023,7 +1022,7 @@ ggplot(alltajD) +
 
 ![](plot_files/figure-gfm/plotTAJD-1.png)<!-- -->
 
-## Recomb rate vs. genome features (Fig S8)
+## Recomb rate vs. genome features (Fig S9)
 
 ``` r
 reps<-read_tsv("window50/repwindows.txt") %>% full_join(alldatareg,by=c("chr"="chromosome","col1","col2"))
@@ -1122,7 +1121,7 @@ print(results)
     ## tau4     exon -0.05       0
     ## tau5  repeats  0.14       0
 
-## SNP depth across genome (Fig S9)
+## SNP depth across genome (Fig S10)
 
 ``` r
 ga.dep <- read_tsv("plot_files/input/JIGAdepavg.tsv")
